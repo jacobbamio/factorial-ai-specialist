@@ -171,41 +171,44 @@ elif page == "Feedback Formatter":
 
     if "feedback_formatted_response" not in st.session_state:
         st.session_state.feedback_formatted_response = None
-    
+
     if "extracted" not in st.session_state:
         st.session_state.extracted = False
 
     if "feedback_written" not in st.session_state:
         st.session_state.feedback_written = None
 
+    if "previous_file" not in st.session_state:
+        st.session_state.previous_file = None
+
     st.header("Feedback Formatter")
     feedback_file = st.file_uploader("Upload a PDF file with feedback to format", type="pdf", accept_multiple_files=False)
 
-    if feedback_file and not st.session_state.get('extracted', False):
+    if feedback_file is not None and feedback_file != st.session_state.previous_file:
+        st.session_state.previous_file = feedback_file
         st.session_state.feedback_written = extract_text_from_pdf(feedback_file)
         st.session_state.extracted = True
-        st.text_area("Write down your feedback right here", value=st.session_state.feedback_written, height=300, disabled=True)
-    elif feedback_file and st.session_state.extracted:
-        st.text_area("Write down your feedback right here", value=st.session_state.feedback_written, height=300, disabled=True)
-    else:
-        st.session_state.feedback_written = st.text_area("Write down your feedback right here", height=300)
+    elif feedback_file is None:
+        st.session_state.extracted = False
+        st.session_state.feedback_written = None
 
-    st.write(st.session_state.feedback_written)
+    st.text_area("Write down your feedback right here", value=st.session_state.feedback_written or "", height=300, disabled=st.session_state.extracted)
+
     countries = [country.name for country in pycountry.countries]
-    col_left, col_right = st.columns([3,2])
+    col_left, col_right = st.columns([3, 2])
     selected_country = col_left.selectbox("Choose the country of the person receiving feedback", countries)
     col_right.markdown("<div style='width: 1px; height: 28px'></div>", unsafe_allow_html=True)
-    
+
     if col_right.button("Format Feedback", use_container_width=True):
+        if st.session_state.feedback_written:
+            oai_services_credentials = st.secrets["azure-oai-services"]
+            payload = payloads.feedback_formatter_payload(culture=selected_country,
+                                                          language=detect(st.session_state.feedback_written),
+                                                          initial_feedback=st.session_state.feedback_written)
 
-        oai_services_credentials = st.secrets["azure-oai-services"]
-        payload = payloads.feedback_formatter_payload(culture = selected_country,
-                                                      language = detect(st.session_state.feedback_written),
-                                                      initial_feedback = st.session_state.feedback_written)
-
-        st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint = oai_services_credentials["feedback_formatter_endpoint"],
-                                                                              api_key = oai_services_credentials["feedback_formatter_api_key"],
-                                                                              payload = payload)["choices"][0]["message"]["content"])
+            st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_formatter_endpoint"],
+                                                                                  api_key=oai_services_credentials["feedback_formatter_api_key"],
+                                                                                  payload=payload)["choices"][0]["message"]["content"])
         
     st.subheader("Feedback Formatted")
 
