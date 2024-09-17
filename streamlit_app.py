@@ -14,6 +14,44 @@ import requests
 import json
 from langdetect import detect
 from fpdf import FPDF
+import fitz  # PyMuPDF
+from paddleocr import PaddleOCR
+
+# PaddleOCR configuration
+ocr = PaddleOCR(
+    use_gpu=False,
+    cpu_threads=16,
+    use_angle_cls=False,
+    lang="es",
+    det_db_score_mode="slow",
+    rec_algorithm="SVTR_LCNet",
+    e2e_pgnet_mode="accurate",
+    drop_score=0.5,
+)
+
+def extract_text_from_pdf(pdf_file):
+    # Open the PDF file using PyMuPDF
+    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+    text = ""
+    
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        page_text = page.get_text("text")  # Attempt to extract text from the page
+        
+        if page_text.strip():  # If text is not empty
+            text += page_text
+        else:
+            # If no selectable text, use OCR
+            image = page.get_pixmap()
+            image_bytes = image.tobytes("png")
+            
+            # Perform OCR on the page image
+            ocr_result = ocr.ocr(image_bytes)
+            page_ocr_text = "\n".join([line[1][0] for line in ocr_result[0]])
+            text += page_ocr_text + "\n"
+    
+    doc.close()
+    return text
 
 def gen_pdf(text):
     pdf = FPDF()
@@ -134,10 +172,25 @@ elif page == "Feedback Formatter":
     if "feedback_formatted_response" not in st.session_state:
         st.session_state.feedback_formatted_response = None
     
+    if "extracted" not in st.session_state:
+        st.session_state.extracted = False
+
+    if "feedback_written" not in st.session_state:
+        st.session_state.feedback_written = None
+
     st.header("Feedback Formatter")
     feedback_file = st.file_uploader("Upload a PDF file with feedback to format", type="pdf", accept_multiple_files=False)
-    feedback_written = st.text_area("Write down your feedback right here", height=300)
 
+    if feedback_file and not st.session_state.get('extracted', False):
+        st.session_state.feedback_written = extract_text_from_pdf(feedback_file)
+        st.session_state.extracted = True
+        st.text_area("Write down your feedback right here", value=st.session_state.feedback_written, height=300, disabled=True)
+    elif feedback_file and st.session_state.extracted:
+        st.text_area("Write down your feedback right here", value=st.session_state.feedback_written, height=300, disabled=True)
+    else:
+        st.session_state.feedback_written = st.text_area("Write down your feedback right here", height=300)
+
+    st.write(st.session_state.feedback_written)
     countries = [country.name for country in pycountry.countries]
     col_left, col_right = st.columns([3,2])
     selected_country = col_left.selectbox("Choose the country of the person receiving feedback", countries)
@@ -147,8 +200,8 @@ elif page == "Feedback Formatter":
 
         oai_services_credentials = st.secrets["azure-oai-services"]
         payload = payloads.feedback_formatter_payload(culture = selected_country,
-                                                      language = detect(feedback_written),
-                                                      initial_feedback = feedback_written)
+                                                      language = detect(st.session_state.feedback_written),
+                                                      initial_feedback = st.session_state.feedback_written)
 
         st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint = oai_services_credentials["feedback_formatter_endpoint"],
                                                                               api_key = oai_services_credentials["feedback_formatter_api_key"],
