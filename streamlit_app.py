@@ -9,6 +9,36 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pycountry
+import payloads
+import requests
+import json
+from langdetect import detect
+from fpdf import FPDF
+
+def gen_pdf(text):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    
+    pdf.multi_cell(0, 10, text)
+    
+    return pdf.output(dest='S').encode('latin1')
+
+
+def oai_request(endpoint, api_key, payload):
+
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": api_key,
+    }
+
+    try:
+        response = requests.post(endpoint, headers=headers, json=payload)
+        response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.RequestException as e:
+        raise SystemExit(f"Failed to make the request. Error: {e}")
+
+    return response.json()
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks" ,"BBDDize Feedbacks", "Notion documentation"]
@@ -100,6 +130,9 @@ if page == "Home":
 
 
 elif page == "Feedback Formatter":
+
+    if "feedback_formatted_response" not in st.session_state:
+        st.session_state.feedback_formatted_response = None
     
     st.header("Feedback Formatter")
     feedback_file = st.file_uploader("Upload a PDF file with feedback to format", type="pdf", accept_multiple_files=False)
@@ -109,11 +142,64 @@ elif page == "Feedback Formatter":
     col_left, col_right = st.columns([3,2])
     selected_country = col_left.selectbox("Choose the country of the person receiving feedback", countries)
     col_right.markdown("<div style='width: 1px; height: 28px'></div>", unsafe_allow_html=True)
-    col_right.button("Format Feedback", use_container_width=True)
+    
+    if col_right.button("Format Feedback", use_container_width=True):
 
+        oai_services_credentials = st.secrets["azure-oai-services"]
+        payload = payloads.feedback_formatter_payload(culture = selected_country,
+                                                      language = detect(feedback_written),
+                                                      initial_feedback = feedback_written)
+
+        st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint = oai_services_credentials["feedback_formatter_endpoint"],
+                                                                              api_key = oai_services_credentials["feedback_formatter_api_key"],
+                                                                              payload = payload)["choices"][0]["message"]["content"])
+        
     st.subheader("Feedback Formatted")
 
-    # Write down here the code to process that feedback
+    ff_col_left, ff_col_right = st.columns(2)
+
+    if st.session_state.feedback_formatted_response is not None:
+        
+        # Get the dict information inside the response.json()
+        feedback_formatted = st.session_state.feedback_formatted_response["feedback_formatted"]
+        feedback_analysis = st.session_state.feedback_formatted_response["feedback_analysis"]
+        short_tip = st.session_state.feedback_formatted_response["short_tip"]
+        top_well_done = st.session_state.feedback_formatted_response["top_well_done"]
+        top_improvers = st.session_state.feedback_formatted_response["top_improvers"]
+
+        ff_col_left.subheader("AI Generated Feedback")
+        ff_col_left.write(feedback_formatted)
+        pdf_binario = gen_pdf(feedback_formatted)
+
+        ff_col_left.write(f"A short tip: {short_tip}")
+        ff_col_left.download_button(label="Generate PDF with the AI improved feedback!",
+                                    data=pdf_binario,
+                                    file_name="feedback.pdf",
+                                    mime="application/pdf",
+                                    use_container_width=True)
+        
+        ff_col_right.subheader("AI Analysis about your feedback")
+        ff_col_right.info(feedback_analysis)
+        placeholder_warning = ff_col_right.empty()
+        col1, col2, col3 = ff_col_right.columns(3)
+
+        if len(top_well_done) == 0:
+
+            placeholder_warning.warning(f"The feedback didn't adapt properly to the culture of {selected_country}. Try improving:")
+            col1.error(top_improvers[0])
+            col2.error(top_improvers[1])
+            col3.error(top_improvers[2])
+
+        else:
+            col1.success(top_well_done[0])
+            col1.warning(top_improvers[0])
+
+            col2.success(top_well_done[1])
+            col2.warning(top_improvers[1])
+
+            col3.success(top_well_done[2])
+            col3.warning(top_improvers[2])
+
 
 
 elif page == "Training Recommendation":
