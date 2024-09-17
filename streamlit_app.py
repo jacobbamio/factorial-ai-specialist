@@ -322,39 +322,48 @@ elif page == "Job Offers Writing":
     st.button("Write the offer!", use_container_width=True)
 
     st.subheader("Job Offer")
+    
 elif page == "GenAI - Feedbacks":
 
     st.header("Generate Feedback with AI")
     st.subheader("Select the kind of feedback you want to craft")
 
     col_left, col_mid, col_right = st.columns(3)
+
     feedback_choice = col_left.radio("Feedback choices", ["360 feedback",
                                                           "1 : 1",
                                                           "Performance Review",
-                                                          "Self evaluation",
+                                                          "Self Evaluation",
                                                           "Horizontal Feedback"])
     
     if feedback_choice != "360 feedback":
 
-        giver_index, receiver_index = 0, 0
-
         mid_left, mid_right = col_mid.columns(2)
-        giver = mid_left.radio("Who gives the feedback?", ["Manager", "Employee"], index = giver_index)
-        receiver = mid_right.radio("Who receives the feedback?", ["Manager", "Employee"], index = receiver_index)
 
-        if feedback_choice == "Performance Review":
-            giver = "Manager"
-            receiver = "Employee"
-        
-        elif feedback_choice == "Self Evaluation":
-            if giver == "Manager": receiver = "Manager"
-            else: receiver = "Employee"
-        mid_left.text_input(label = "Name of the one giving feedback", placeholder = "Paul")
-        mid_right.text_input(label = "Name of the one receiving feedback", placeholder = "Luca")
+        if feedback_choice == "1 : 1":
+            giver = mid_left.radio("Who gives the feedback?", ["Manager", "Employee"])
+            if giver == "Manager":
+                receiver = mid_right.radio("Who receives the feedback?", ["Employee"])
+            else:
+                receiver = mid_right.radio("Who receives the feedback?", ["Manager"])
+        elif feedback_choice == "Performance Review":
+            giver = mid_left.radio("Who gives the feedback?", ["Manager"])
+            receiver = mid_right.radio("Who receives the feedback?", ["Employee"])
 
-        col_right.text_area(label = "Introduce an user prompt to specify anything you want something to be said in this feedbacks",
-                    placeholder = "Paul is so happy with Luca",
-                    height = 132)
+        elif feedback_choice == "Self Evaluation" or feedback_choice == "Horizontal Feedback":
+            giver = mid_left.radio("Who gives the feedback?", ["Manager", "Employee"])
+            if giver == "Manager":
+                receiver = mid_right.radio("Who receives the feedback?", ["Manager"])
+            else:
+                receiver = mid_right.radio("Who receives the feedback?", ["Employee"])
+
+        giver_name = mid_left.text_input(label="Name of the one giving feedback", placeholder="Paul")
+        receiver_name = mid_right.text_input(label="Name of the one receiving feedback", placeholder="Luca")
+
+        col_right.text_area(label="Introduce an user prompt to specify anything you want something to be said in this feedback",
+                            placeholder="Paul is so happy with Luca",
+                            height=132)
+
     
     else:
         col_left.text_input("Who's receiving the feedback?", placeholder = "Paul")
