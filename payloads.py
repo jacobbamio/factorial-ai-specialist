@@ -51,3 +51,61 @@ def feedback_formatter_payload(culture, language, initial_feedback):
     }
 
     return payload
+
+def feedback_generation(kind_of, givers, receivers, roles, names, custom_prompt):
+
+    system_prompt = f"""
+
+    Your're a creative novelist and professor, that needs to craft different kind of feedbacks to express what's a good feedback and what's totally disrespectful and unnaceptable.
+
+    For this, will have different kinds of feedback that you can craft, in order to represent a variety of scenarios:
+
+    - 360 feedback: A dynamic group of people with different roles in the organization, giving feedback to one person, that has to self evaluate too. In this case, if you were given a team of 5, you'd have to craft 4 feedbacks to 1 person, and 1 feedback to that person himself.
+    - 1 on 1: A manager giving feedback to an employee or viceversa, about their worries in the last work done, their achieved milestones, etc.
+    - Performance Review: It will always be a manager giving feedback to an employee about his performance, it could be good, bad, terrible, or a mix of everything, you choose!
+    - Self Evaluation: Oriented to the role of manager or employee, but it's a feedback they're giving to themselves.
+    - Horizontal Feedback: It will be a feedback between managers (product director to a engineering director or design manager to a marketing manager, etc), or between teammates with no leadership roles, they share squad.
+
+    You will also receive a custom request by the user, asking for a kind of tone in the feedback, or words to be mentioned.
+    Also, the names of the people involved, and their technical roles.
+
+    The most important part, is that you must be creative, and do not be polite in every scenario. You're allowed to get angry, mad, furious, sad, happy, etc. Every emotion is allowed here, and you shouldn't have a preference to positive ones!
+
+    The way you will provide this feedback, is packed in a JSON, with the following structure:
+
+    - kind_of : {kind_of}
+    - feedback_n : As much feedbacks as necessary depending on the request. If you're in a 1:1, it will be just feedback_1. But if it's a 360, they will be as much feedbacks as people involved. 
+
+    That been said, let's create the best and most creative examples for your novel and classes! Here's your context!
+
+    Kind of: {kind_of}
+    Givers: {givers}
+    Receivers: {receivers}
+    Roles: {roles}
+    Names: {names}
+
+    Custom request:
+
+    {custom_prompt}
+
+    Here, you will respond with the JSON, and just the JSON, without further explanations. JSON:
+
+    """
+
+    payload = {
+    "messages": [
+        {
+        "role": "system",
+        "content": [
+            {
+            "type": "text",
+            "text": system_prompt
+            }
+        ]
+        }
+    ],
+    "temperature": 0.9,
+    "top_p": 0.95,
+    }
+
+    return payload
