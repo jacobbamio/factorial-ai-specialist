@@ -207,7 +207,7 @@ elif page == "Feedback Formatter":
                                                           initial_feedback=st.session_state.feedback_written)
 
             st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_formatter_endpoint"],
-                                                                                  api_key=oai_services_credentials["feedback_formatter_api_key"],
+                                                                                  api_key=oai_services_credentials["api_key"],
                                                                                   payload=payload)["choices"][0]["message"]["content"])
         
     st.subheader("Feedback Formatted")
