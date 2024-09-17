@@ -192,7 +192,7 @@ elif page == "Feedback Formatter":
         st.session_state.extracted = False
         st.session_state.feedback_written = None
 
-    st.text_area("Write down your feedback right here", value=st.session_state.feedback_written or "", height=300, disabled=st.session_state.extracted)
+    st.session_state.feedback_written = st.text_area("Write down your feedback right here", value=st.session_state.feedback_written or "", height=300, disabled=st.session_state.extracted)
 
     countries = [country.name for country in pycountry.countries]
     col_left, col_right = st.columns([3, 2])
