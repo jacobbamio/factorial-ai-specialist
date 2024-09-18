@@ -17,6 +17,7 @@ from fpdf import FPDF
 import fitz  # PyMuPDF
 from paddleocr import PaddleOCR
 import re
+from io import BytesIO
 
 # PaddleOCR configuration
 ocr = PaddleOCR(
@@ -57,12 +58,12 @@ def extract_text_from_pdf(pdf_file):
 def gen_pdf(text):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    
+    pdf.add_font('DejaVuSans', '', 'fonts/DejaVuSans.ttf', uni=True)
+    pdf.set_font('DejaVuSans', '', 12)
     
     pdf.multi_cell(0, 10, text)
-    
-    return pdf.output(dest='S').encode('latin1')
-
+    pdf.output("output.pdf")
 
 def oai_request(endpoint, api_key, payload):
 
@@ -226,14 +227,17 @@ elif page == "Feedback Formatter":
 
         ff_col_left.subheader("AI Generated Feedback")
         ff_col_left.write(feedback_formatted)
-        pdf_binario = gen_pdf(feedback_formatted)
+        binary_pdf = gen_pdf(feedback_formatted)
 
         ff_col_left.write(f"A short tip: {short_tip}")
-        ff_col_left.download_button(label="Generate PDF with the AI improved feedback!",
-                                    data=pdf_binario,
-                                    file_name="feedback.pdf",
-                                    mime="application/pdf",
-                                    use_container_width=True)
+        
+        with open("output.pdf", "rb") as file:
+            btn=ff_col_left.download_button(
+            label="Generate PDF with the AI improved feedback!",
+            data=file,
+            file_name="feedback.pdf",
+            mime="application/pdf"
+        )
         
         ff_col_right.subheader("AI Analysis about your feedback")
         ff_col_right.info(feedback_analysis)
