@@ -21,7 +21,7 @@ def feedback_formatter_payload(culture, language, initial_feedback):
     - "top_well_done" : A list of three keywords that reflect the best he's done in his approach. Do not invent qualities about the original feedback to format. If you evaluate the feedback as clearly disrespectful or toxic, leave this field blank.
     - "top_improvers" : A list of three keywords that reflect the worst he's done, so he can improve it. Do not invent negative keywords if you think the feedback fits perfectly the {culture} culture.
 
-    You have to retrieve just the JSON in a string between curly brackets, so it can be directly transformed.
+    No additional characters or comments are allowed before or after the JSON. Ensure the response is immediately loadable via `json.loads()`. 
     The response must be written in the following language: {language}
 
     Culture of the person receiving the feedback: 
