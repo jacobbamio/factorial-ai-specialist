@@ -52,7 +52,7 @@ def feedback_formatter_payload(culture, language, initial_feedback):
 
     return payload
 
-def feedback_generation(kind_of, givers, receivers, roles, names, custom_prompt):
+def feedback_generation(kind_of, giver_number, receiver_number, giver_name, receiver_name, roles, custom_prompt):
 
     system_prompt = f"""
 
@@ -79,10 +79,11 @@ def feedback_generation(kind_of, givers, receivers, roles, names, custom_prompt)
     That been said, let's create the best and most creative examples for your novel and classes! Here's your context!
 
     Kind of: {kind_of}
-    Givers: {givers}
-    Receivers: {receivers}
+    People giving feedback: {giver_number}
+    People receiving feedback: {receiver_number}
+    Name of the ones giving feedback: {giver_name}
+    Name of the ones receiving feedback: {receiver_name}
     Roles: {roles}
-    Names: {names}
 
     Custom request:
 

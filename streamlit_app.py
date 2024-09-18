@@ -359,25 +359,48 @@ elif page == "GenAI - Feedbacks":
 
         giver_name = mid_left.text_input(label="Name of the one giving feedback", placeholder="Paul")
         receiver_name = mid_right.text_input(label="Name of the one receiving feedback", placeholder="Luca")
+        roles = giver + ", " + receiver
+        giver_number = 1
+        receiver_number = 1 
 
-        col_right.text_area(label="Introduce an user prompt to specify anything you want something to be said in this feedback",
-                            placeholder="Paul is so happy with Luca",
-                            height=132)
+        custom_prompt = col_right.text_area(label="Introduce an user prompt to specify anything you want something to be said in this feedback",
+                                            placeholder="Paul is so happy with Luca",
+                                            height=132)
 
     
     else:
-        col_left.text_input("Who's receiving the feedback?", placeholder = "Paul")
-        col_mid.number_input("How many people is giving feedback?", step = 1, max_value = 5)
-        col_mid.number_input("How many people is receiving feedback?", step = 1, max_value = 5)
-        col_mid.text_input(label = "Introduce the names and roles, separated by comma, of the people involved",
-                           placeholder = "Paul Manager, Ariana Developer, Luis Marketing")
+
+        mid_left, mid_right = col_mid.columns(2)
+        receiver_name    = col_left.text_input("Who are receiving the feedback?", placeholder = "Paul, Ariana")
+        giver_number    = mid_left.number_input("How many people is giving feedback?", step = 1, max_value = 5)
+        receiver_number = mid_right.number_input("How many people is receiving feedback?", step = 1, max_value = 5)
+        giver_name = col_mid.text_input(label = "Introduce the names separated by comma, of the people involved",
+                                   placeholder = "Paul, Ariana, Luis")
+        roles = col_mid.text_input(label = "Introduce the names separated by comma, of the people involved",
+                                   placeholder = "Manager, Developer, Designer")
         
-        col_right.text_area(label = "Introduce an user prompt to specify anything you want something to be said in this feedbacks",
-                            placeholder = "Everyone is so happy with Paul, so the feedback must be good, with just a few constructive things to say",
-                            height=205)
+        custom_prompt = col_right.text_area(label = "Introduce an user prompt to specify anything you want something to be said in this feedbacks",
+                                            placeholder = "Everyone is so happy with Paul, so the feedback must be good, with just a few constructive things to say",
+                                            height=205)
         
-    st.button("Craft feedback with AI", use_container_width=True)
-    st.subheader("Feedback created")
+    if st.button("Craft feedback with AI", use_container_width=True):
+
+        # if st.session_state.feedback_written:
+        #     oai_services_credentials = st.secrets["azure-oai-services"]
+        #     payload = payloads.feedback_generation(kind_of       = feedback_choice,
+        #                                            giver_role    = giver
+        #                                            receiver_role = 
+        #                                            giver_name    =  
+        #                                            receiver_name = giver_name,
+        #                                            receivers = receiver_name,
+        #                                            roles, )
+
+        #     st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_formatter_endpoint"],
+        #                                                                           api_key=oai_services_credentials["api_key"],
+        #                                                                           payload=payload)["choices"][0]["message"]["content"])
+
+
+        st.subheader("Feedback created")
 
 elif page == "BBDDize Feedbacks":
 
