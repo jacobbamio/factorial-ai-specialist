@@ -224,7 +224,7 @@ elif page == "Feedback Formatter":
         short_tip = st.session_state.feedback_formatted_response["short_tip"]
         top_well_done = st.session_state.feedback_formatted_response["top_well_done"]
         top_improvers = st.session_state.feedback_formatted_response["top_improvers"]
-
+        
         ff_col_left.subheader("AI Generated Feedback")
         ff_col_left.write(feedback_formatted)
         binary_pdf = gen_pdf(feedback_formatted)
@@ -245,23 +245,16 @@ elif page == "Feedback Formatter":
         col1, col2, col3 = ff_col_right.columns(3)
 
         if len(top_well_done) == 0:
-
             placeholder_warning.warning(f"The feedback didn't adapt properly to the culture of {selected_country}. Try improving:")
-            col1.error(top_improvers[0])
-            col2.error(top_improvers[1])
-            col3.error(top_improvers[2])
-
+            for i, col in enumerate([col1, col2, col3]):
+                if i < len(top_improvers):
+                    col.error(top_improvers[i])
         else:
-            col1.success(top_well_done[0])
-            col1.warning(top_improvers[0])
-
-            col2.success(top_well_done[1])
-            col2.warning(top_improvers[1])
-
-            col3.success(top_well_done[2])
-            col3.warning(top_improvers[2])
-
-
+            for i, col in enumerate([col1, col2, col3]):
+                if i < len(top_well_done):
+                    col.success(top_well_done[i])
+                if i < len(top_improvers):
+                    col.warning(top_improvers[i])
 
 elif page == "Training Recommendation":
 
