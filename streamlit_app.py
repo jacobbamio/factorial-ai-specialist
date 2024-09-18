@@ -224,7 +224,7 @@ elif page == "Feedback Formatter":
         short_tip = st.session_state.feedback_formatted_response["short_tip"]
         top_well_done = st.session_state.feedback_formatted_response["top_well_done"]
         top_improvers = st.session_state.feedback_formatted_response["top_improvers"]
-        
+
         ff_col_left.subheader("AI Generated Feedback")
         ff_col_left.write(feedback_formatted)
         binary_pdf = gen_pdf(feedback_formatted)
@@ -395,14 +395,6 @@ elif page == "GenAI - Feedbacks":
                                                    receiver_name   = receiver_name,
                                                    roles           = roles,
                                                    custom_prompt   = custom_prompt)
-            
-            st.write(oai_request(endpoint=oai_services_credentials["feedback_generator_endpoint"],
-                                 api_key=oai_services_credentials["api_key"],
-                                 payload=payload)["choices"][0]["message"]["content"])
-            
-            print(oai_request(endpoint=oai_services_credentials["feedback_generator_endpoint"],
-                                 api_key=oai_services_credentials["api_key"],
-                                 payload=payload)["choices"][0]["message"]["content"])
             
             st.session_state.feedback_generated_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_generator_endpoint"],
                                                                                   api_key=oai_services_credentials["api_key"],
