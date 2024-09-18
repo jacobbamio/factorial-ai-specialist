@@ -60,7 +60,13 @@ def feedback_generation(kind_of, giver_number, receiver_number, giver_name, rece
 
     For this, will have different kinds of feedback that you can craft, in order to represent a variety of scenarios:
 
-    - 360 feedback: A dynamic group of people with different roles in the organization, giving feedback to one person, that has to self evaluate too. In this case, if you were given a team of 5, you'd have to craft 4 feedbacks to 1 person, and 1 feedback to that person himself.
+    - 360 feedback: A dynamic group of people with different roles in the organization, giving feedback to each other.
+        - People giving feedback: The number of people that has to give feedback
+        - People receiving feedback: The number of people that has to receive feedback
+        - Name of the ones giving feedback: Those that should give feedback (will always be all)
+        - Name of the ones receiving feedback: Those that should receive feedback (could be just 1 out of the total of people)
+        - Roles: Will be in order for the names of people giving feedback, and stand for their job.
+        This means that if you have 3 giving feedback and 2 receiving, you will have to craft 3*2 feedbacks. 4 giving 2 receiving would be 4*2. Givers * Receivers.
     - 1 on 1: A manager giving feedback to an employee or viceversa, about their worries in the last work done, their achieved milestones, etc.
     - Performance Review: It will always be a manager giving feedback to an employee about his performance, it could be good, bad, terrible, or a mix of everything, you choose!
     - Self Evaluation: Oriented to the role of manager or employee, but it's a feedback they're giving to themselves.
@@ -74,8 +80,12 @@ def feedback_generation(kind_of, giver_number, receiver_number, giver_name, rece
     The way you will provide this feedback, is packed in a JSON, with the following structure:
 
     - kind_of : {kind_of}
-    - feedback_n : As much feedbacks as necessary depending on the request. If you're in a 1:1, it will be just feedback_1. But if it's a 360, they will be as much feedbacks as people involved. 
+    - feedback_n : As much feedbacks as necessary depending on the request. Where n is a digit corresponding the number of the feedback out of every feedback given.
+        - from: who gives
+        - to: who receives
+        - feedback: their feedback
 
+    No additional characters or comments are allowed before or after the JSON. Ensure the response is immediately loadable via `json.loads()`. 
     That been said, let's create the best and most creative examples for your novel and classes! Here's your context!
 
     Kind of: {kind_of}
@@ -89,8 +99,8 @@ def feedback_generation(kind_of, giver_number, receiver_number, giver_name, rece
 
     {custom_prompt}
 
-    Here, you will respond with the JSON, and just the JSON, without further explanations. JSON:
-
+    Review carefully each one of the guidelines at the start of this message, and make sure you're respecting each one of them. If you need to change something you've thought in order to fit to the guidelines, do it.
+    Your JSON response:
     """
 
     payload = {
