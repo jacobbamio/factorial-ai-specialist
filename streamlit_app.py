@@ -16,6 +16,7 @@ from langdetect import detect
 from fpdf import FPDF
 import fitz  # PyMuPDF
 from paddleocr import PaddleOCR
+import re
 
 # PaddleOCR configuration
 ocr = PaddleOCR(
@@ -77,6 +78,17 @@ def oai_request(endpoint, api_key, payload):
         raise SystemExit(f"Failed to make the request. Error: {e}")
 
     return response.json()
+
+def extract_json_content(text):
+    json_content_pattern = r'```json\s*({.*?})\s*```'
+    
+    match = re.search(json_content_pattern, text, flags=re.DOTALL)
+    
+    if match:
+        json_content = match.group(1)
+        return json_content
+    else:
+        raise ValueError("No valid JSON block found in the input text")
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks" ,"BBDDize Feedbacks", "Notion documentation"]
@@ -325,6 +337,9 @@ elif page == "Job Offers Writing":
     
 elif page == "GenAI - Feedbacks":
 
+    if "feedback_generated_response" not in st.session_state:
+        st.session_state.feedback_generated_response = None
+
     st.header("Generate Feedback with AI")
     st.subheader("Select the kind of feedback you want to craft")
 
@@ -376,7 +391,7 @@ elif page == "GenAI - Feedbacks":
         receiver_number = mid_right.number_input("How many people is receiving feedback?", step = 1, max_value = 5)
         giver_name = col_mid.text_input(label = "Introduce the names separated by comma, of the people involved",
                                    placeholder = "Paul, Ariana, Luis")
-        roles = col_mid.text_input(label = "Introduce the names separated by comma, of the people involved",
+        roles = col_mid.text_input(label = "Introduce the roles separated by comma, of the people involved",
                                    placeholder = "Manager, Developer, Designer")
         
         custom_prompt = col_right.text_area(label = "Introduce an user prompt to specify anything you want something to be said in this feedbacks",
@@ -385,22 +400,42 @@ elif page == "GenAI - Feedbacks":
         
     if st.button("Craft feedback with AI", use_container_width=True):
 
-        # if st.session_state.feedback_written:
-        #     oai_services_credentials = st.secrets["azure-oai-services"]
-        #     payload = payloads.feedback_generation(kind_of       = feedback_choice,
-        #                                            giver_role    = giver
-        #                                            receiver_role = 
-        #                                            giver_name    =  
-        #                                            receiver_name = giver_name,
-        #                                            receivers = receiver_name,
-        #                                            roles, )
+        if custom_prompt:
+            oai_services_credentials = st.secrets["azure-oai-services"]
+            payload = payloads.feedback_generation(kind_of         = feedback_choice,
+                                                   giver_number    = giver_number,
+                                                   receiver_number = receiver_number,
+                                                   giver_name      = giver_name,
+                                                   receiver_name   = receiver_name,
+                                                   roles           = roles,
+                                                   custom_prompt   = custom_prompt)
 
-        #     st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_formatter_endpoint"],
-        #                                                                           api_key=oai_services_credentials["api_key"],
-        #                                                                           payload=payload)["choices"][0]["message"]["content"])
+            st.session_state.feedback_generated_response = json.loads(extract_json_content(oai_request(endpoint=oai_services_credentials["feedback_generator_endpoint"],
+                                                                                                       api_key=oai_services_credentials["api_key"],
+                                                                                                       payload=payload)["choices"][0]["message"]["content"]))
+            
 
+    st.subheader("Feedback created")
+    if st.session_state.feedback_generated_response["kind_of"] == "360 feedback":
+        
+        col1, col2 = st.columns(2)
+        column_switch = True
 
-        st.subheader("Feedback created")
+        for key, feedback_item in st.session_state.feedback_generated_response.items():
+            if key.startswith("feedback_"):  
+                if column_switch:
+                    with col1:
+                        st.subheader(f"From {feedback_item['from']} to {feedback_item['to']}")
+                        st.info(feedback_item['feedback'])
+                else:
+                    with col2:
+                        st.subheader(f"From {feedback_item['from']} to {feedback_item['to']}")
+                        st.info(feedback_item['feedback'])
+
+                column_switch = not column_switch
+    else:
+        st.info(st.session_state.feedback_generated_response["feedback_1"])
+        st.write(st.session_state.feedback_generated_response)
 
 elif page == "BBDDize Feedbacks":
 
