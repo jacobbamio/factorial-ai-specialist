@@ -59,7 +59,7 @@ def gen_pdf(text):
     pdf = FPDF()
     pdf.add_page()
     
-    pdf.add_font('DejaVuSans', '', 'fonts/DejaVuSans.ttf', uni=True)
+    pdf.add_font('DejaVuSans', '', 'resources/fonts/DejaVuSans.ttf', uni=True)
     pdf.set_font('DejaVuSans', '', 12)
     
     pdf.multi_cell(0, 10, text)
