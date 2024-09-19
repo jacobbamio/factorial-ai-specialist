@@ -218,43 +218,46 @@ elif page == "Feedback Formatter":
 
     if st.session_state.feedback_formatted_response is not None:
         
-        # Get the dict information inside the response.json()
-        feedback_formatted = st.session_state.feedback_formatted_response["feedback_formatted"]
-        feedback_analysis = st.session_state.feedback_formatted_response["feedback_analysis"]
-        short_tip = st.session_state.feedback_formatted_response["short_tip"]
-        top_well_done = st.session_state.feedback_formatted_response["top_well_done"]
-        top_improvers = st.session_state.feedback_formatted_response["top_improvers"]
+        try:
+            # Get the dict information inside the response.json()
+            feedback_formatted = st.session_state.feedback_formatted_response["feedback_formatted"]
+            feedback_analysis = st.session_state.feedback_formatted_response["feedback_analysis"]
+            short_tip = st.session_state.feedback_formatted_response["short_tip"]
+            top_well_done = st.session_state.feedback_formatted_response["top_well_done"]
+            top_improvers = st.session_state.feedback_formatted_response["top_improvers"]
 
-        ff_col_left.subheader("AI Generated Feedback")
-        ff_col_left.write(feedback_formatted)
-        binary_pdf = gen_pdf(feedback_formatted)
+            ff_col_left.subheader("AI Generated Feedback")
+            ff_col_left.write(feedback_formatted)
+            binary_pdf = gen_pdf(feedback_formatted)
 
-        ff_col_left.write(f"A short tip: {short_tip}")
-        
-        with open("output.pdf", "rb") as file:
-            btn=ff_col_left.download_button(
-            label="Generate PDF with the AI improved feedback!",
-            data=file,
-            file_name="feedback.pdf",
-            mime="application/pdf"
-        )
-        
-        ff_col_right.subheader("AI Analysis about your feedback")
-        ff_col_right.info(feedback_analysis)
-        placeholder_warning = ff_col_right.empty()
-        col1, col2, col3 = ff_col_right.columns(3)
+            ff_col_left.write(f"A short tip: {short_tip}")
+            
+            with open("output.pdf", "rb") as file:
+                btn=ff_col_left.download_button(
+                label="Generate PDF with the AI improved feedback!",
+                data=file,
+                file_name="feedback.pdf",
+                mime="application/pdf"
+            )
+            
+            ff_col_right.subheader("AI Analysis about your feedback")
+            ff_col_right.info(feedback_analysis)
+            placeholder_warning = ff_col_right.empty()
+            col1, col2, col3 = ff_col_right.columns(3)
 
-        if len(top_well_done) == 0:
-            placeholder_warning.warning(f"The feedback didn't adapt properly to the culture of {selected_country}. Try improving:")
-            for i, col in enumerate([col1, col2, col3]):
-                if i < len(top_improvers):
-                    col.error(top_improvers[i])
-        else:
-            for i, col in enumerate([col1, col2, col3]):
-                if i < len(top_well_done):
-                    col.success(top_well_done[i])
-                if i < len(top_improvers):
-                    col.warning(top_improvers[i])
+            if len(top_well_done) == 0:
+                placeholder_warning.warning(f"The feedback didn't adapt properly to the culture of {selected_country}. Try improving:")
+                for i, col in enumerate([col1, col2, col3]):
+                    if i < len(top_improvers):
+                        col.error(top_improvers[i])
+            else:
+                for i, col in enumerate([col1, col2, col3]):
+                    if i < len(top_well_done):
+                        col.success(top_well_done[i])
+                    if i < len(top_improvers):
+                        col.warning(top_improvers[i])
+        except:
+            st.warning("An error ocurred during the request. Please try again.")
 
 elif page == "Training Recommendation":
 
@@ -401,19 +404,25 @@ elif page == "GenAI - Feedbacks":
                                                                                   payload=payload)["choices"][0]["message"]["content"])
 
     st.subheader("Feedback created")
-    if st.session_state.feedback_generated_response != None:            
-            col1, col2 = st.columns(2)
-            column_switch = True
 
-            for key, feedback_item in st.session_state.feedback_generated_response.items():
-                if key.startswith("feedback_"):  
-                    if column_switch:
-                        with col1:
-                            st.subheader(f"From {feedback_item['from']} to {feedback_item['to']}")
-                            st.info(feedback_item['feedback'])
-                    else:
-                        with col2:
-                            st.subheader(f"From {feedback_item['from']} to {feedback_item['to']}")
-                            st.info(feedback_item['feedback'])
+    try:
+        if st.session_state.feedback_generated_response != None:            
+                col1, col2 = st.columns(2)
+                column_switch = True
 
-                    column_switch = not column_switch
+                for key, feedback_item in st.session_state.feedback_generated_response.items():
+                    if key.startswith("feedback_"):  
+                        if column_switch:
+                            with col1:
+                                st.subheader(f"From {feedback_item['from']} to {feedback_item['to']}")
+                                st.info(feedback_item['feedback'])
+                        else:
+                            with col2:
+                                st.subheader(f"From {feedback_item['from']} to {feedback_item['to']}")
+                                st.info(feedback_item['feedback'])
+
+                        column_switch = not column_switch
+
+    except:
+
+        st.warning("An error ocurred during the request. Please try again")
