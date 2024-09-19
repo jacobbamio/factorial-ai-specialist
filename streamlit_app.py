@@ -81,7 +81,7 @@ def oai_request(endpoint, api_key, payload):
     return response.json()
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
-pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks" ,"BBDDize Feedbacks", "Notion documentation"]
+pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks", "Notion documentation"]
 logo_path = "resources/images/factorial_logo.svg"
 urls = {"Notion documentation" : "https://factorial-ai-specialist-jacob-bamio.notion.site/Factorial-AI-Specialist-7589768dc24848f38b8eb4728256fa10"}
 styles = {
@@ -417,63 +417,3 @@ elif page == "GenAI - Feedbacks":
                             st.info(feedback_item['feedback'])
 
                     column_switch = not column_switch
-
-elif page == "BBDDize Feedbacks":
-
-    st.header("Upload feedbacks to an Azure Database")
-    st.write("""
-
-             The feedbacks given between the people in our teams, is always a text document with a lot of information. This tool will analyze all those documents and get the most relevant information into a database.
-             This will help us a lot when we need to match the key phrases in that feedback with training courses in the Training Recommendation tab.
-
-             """)
-    
-    st.subheader("Choose whose feedback you want to bbdize")
-    st.button("Everyone's")
-
-    st.markdown("""
-    <style>
-    .stButton > button {
-        height: 150px;
-        width: 250px;
-        font-size: 20px;
-        text-align: center;
-        line-height: 30px; /* Vertically center text */
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.subheader("Direction Team")
-    direction_left, direction_mid, direction_right, _, _ = st.columns(5)
-    direction_left.button("## **Engineering Director**\n\nAyaan", use_container_width=False)
-    direction_mid.button("## **Product Director**\n\nMei-Ling", use_container_width=False)
-    direction_right.button("## **Design Director**\n\nSantiago", use_container_width=False)
-
-    st.subheader("Generic Resources Team")
-    generic_left, generic_mid, _, _, _ = st.columns(5)
-    generic_left.button("## **Data Analytics Engineer**\n\nAmara", use_container_width=False)
-    generic_mid.button("## **AI Engineer**\n\nSven", use_container_width=False)
-
-    st.subheader("Recruitment Squad")
-    recruitment_left, recruitment_mid1, recruitment_mid2, recruitment_right1, recruitment_right2 = st.columns(5)
-    recruitment_left.button("## **Product Manager**\n\nHana", use_container_width=False)
-    recruitment_mid1.button("## **Engineering Manager**\n\nLuca", use_container_width=False)
-    recruitment_mid2.button("## **Backend Engineer**\n\nPriya", use_container_width=False)
-    recruitment_right1.button("## **Frontend Engineer**\n\nYuki", use_container_width=False)
-    recruitment_right2.button("## **Designer**\n\nOmar", use_container_width=False)
-
-    st.subheader("Performance Squad")
-    performance_left, performance_mid1, performance_mid2, performance_right1, performance_right2 = st.columns(5)
-    performance_left.button("## **Product Manager**\n\nTatiana", use_container_width=False)
-    performance_mid1.button("## **Engineering Manager**\n\nThiago", use_container_width=False)
-    performance_mid2.button("## **Backend Engineer**\n\nAisling", use_container_width=False)
-    performance_right1.button("## **Frontend Engineer**\n\nDimitri", use_container_width=False)
-    performance_right2.button("## **Designer**\n\nFatima", use_container_width=False)
-
-    st.subheader("Engagement Squad")
-    engagement_left, engagement_mid1, engagement_mid2, engagement_right1, engagement_right2 = st.columns(5)
-    engagement_left.button("## **Product Manager**\n\nAnders", use_container_width=False)
-    engagement_mid1.button("## **Engineering Manager**\n\nLeila", use_container_width=False)
-    engagement_mid2.button("## **Backend Engineer**\n\nPavel", use_container_width=False)
-    engagement_right1.button("## **Frontend Engineer**\n\nInes", use_container_width=False)
-    engagement_right2.button("## **Designer**\n\nAksel", use_container_width=False)
