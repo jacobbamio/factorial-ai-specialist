@@ -263,6 +263,42 @@ elif page == "Training Recommendation":
 
     st.header("Training Recommendation")
     st.write("In this tab, you will have to choose one of the members in our team, and based in their feedback database, our AI is going to recommend the best training fit for him.")
+    teams = {
+        "Direction Team": [
+            {"title": "Engineering Director", "name": "Ayaan"},
+            {"title": "Product Director", "name": "Mei-Ling"},
+            {"title": "Design Director", "name": "Santiago"}
+        ],
+        "Generic Resources Team": [
+            {"title": "Data Analytics Engineer", "name": "Amara"},
+            {"title": "AI Engineer", "name": "Sven"}
+        ],
+        "Recruitment Squad": [
+            {"title": "Product Manager", "name": "Hana"},
+            {"title": "Engineering Manager", "name": "Luca"},
+            {"title": "Backend Engineer", "name": "Priya"},
+            {"title": "Frontend Engineer", "name": "Yuki"},
+            {"title": "Designer", "name": "Omar"}
+        ],
+        "Performance Squad": [
+            {"title": "Product Manager", "name": "Tatiana"},
+            {"title": "Engineering Manager", "name": "Thiago"},
+            {"title": "Backend Engineer", "name": "Aisling"},
+            {"title": "Frontend Engineer", "name": "Dimitri"},
+            {"title": "Designer", "name": "Fatima"}
+        ],
+        "Engagement Squad": [
+            {"title": "Product Manager", "name": "Anders"},
+            {"title": "Engineering Manager", "name": "Leila"},
+            {"title": "Backend Engineer", "name": "Pavel"},
+            {"title": "Frontend Engineer", "name": "Ines"},
+            {"title": "Designer", "name": "Aksel"}
+        ]
+    }
+
+    selected_team = st.selectbox("Choose a team", list(teams.keys()))
+    team_members = teams[selected_team]
+
     st.markdown("""
     <style>
     .stButton > button {
@@ -270,49 +306,22 @@ elif page == "Training Recommendation":
         width: 250px;
         font-size: 20px;
         text-align: center;
-        line-height: 30px; /* Vertically center text */
+        line-height: 30px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    st.subheader("Direction Team")
-    direction_left, direction_mid, direction_right, _, _ = st.columns(5)
-    direction_left.button("## **Engineering Director**\n\nAyaan", use_container_width=False)
-    direction_mid.button("## **Product Director**\n\nMei-Ling", use_container_width=False)
-    direction_right.button("## **Design Director**\n\nSantiago", use_container_width=False)
+    cols = st.columns(5)
+    selected_name = None
 
-    st.subheader("Generic Resources Team")
-    generic_left, generic_mid, _, _, _ = st.columns(5)
-    generic_left.button("## **Data Analytics Engineer**\n\nAmara", use_container_width=False)
-    generic_mid.button("## **AI Engineer**\n\nSven", use_container_width=False)
+    for i, member in enumerate(team_members):
+        if cols[i].button(f"## **{member['title']}**\n\n{member['name']}"):
+            selected_name = member["name"]
 
-    st.subheader("Recruitment Squad")
-    recruitment_left, recruitment_mid1, recruitment_mid2, recruitment_right1, recruitment_right2 = st.columns(5)
-    recruitment_left.button("## **Product Manager**\n\nHana", use_container_width=False)
-    recruitment_mid1.button("## **Engineering Manager**\n\nLuca", use_container_width=False)
-    recruitment_mid2.button("## **Backend Engineer**\n\nPriya", use_container_width=False)
-    recruitment_right1.button("## **Frontend Engineer**\n\nYuki", use_container_width=False)
-    recruitment_right2.button("## **Designer**\n\nOmar", use_container_width=False)
-
-    st.subheader("Performance Squad")
-    performance_left, performance_mid1, performance_mid2, performance_right1, performance_right2 = st.columns(5)
-    performance_left.button("## **Product Manager**\n\nTatiana", use_container_width=False)
-    performance_mid1.button("## **Engineering Manager**\n\nThiago", use_container_width=False)
-    performance_mid2.button("## **Backend Engineer**\n\nAisling", use_container_width=False)
-    performance_right1.button("## **Frontend Engineer**\n\nDimitri", use_container_width=False)
-    performance_right2.button("## **Designer**\n\nFatima", use_container_width=False)
-
-    st.subheader("Engagement Squad")
-    engagement_left, engagement_mid1, engagement_mid2, engagement_right1, engagement_right2 = st.columns(5)
-    engagement_left.button("## **Product Manager**\n\nAnders", use_container_width=False)
-    engagement_mid1.button("## **Engineering Manager**\n\nLeila", use_container_width=False)
-    engagement_mid2.button("## **Backend Engineer**\n\nPavel", use_container_width=False)
-    engagement_right1.button("## **Frontend Engineer**\n\nInes", use_container_width=False)
-    engagement_right2.button("## **Designer**\n\nAksel", use_container_width=False)
-
-    name = "Amara"
-
-    st.subheader(f"Training recommendations for {name}")
+    if selected_name:
+        st.subheader(f"Training recommendations for {selected_name}")
+    else:
+        st.subheader("Select a team member to see their training recommendation.")
 
 elif page == "Job Offers Writing":
 
