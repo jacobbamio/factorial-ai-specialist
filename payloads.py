@@ -120,3 +120,148 @@ def feedback_generation(kind_of, giver_number, receiver_number, giver_name, rece
     }
 
     return payload
+
+
+def keyword_summarizer_payload(team, name, kind_of, content):
+
+    system_prompt = f"""
+
+    You are a psychologist specializing in business environments, particularly in the areas of communication, leadership, and performance management. Your expertise is in analyzing interpersonal dynamics, feedback processes, and the development of soft skills that are critical in professional settings.
+
+    Your task is to evaluate a given piece of feedback, which may consist of one or two statements, typically provided in a workplace context. This feedback could be directed at a manager, a colleague, or a client, and will often highlight areas of strength or areas for improvement.
+
+    Your goal:
+    Summarize the key themes or skill gaps identified in the feedback and condense them into 5 precise keywords. These keywords should represent critical soft skills or behavioral attributes that can be directly tied to professional development or training programs. The keywords should align with skills commonly addressed in corporate training courses.
+    Analyze in 100 to 200 words why those keywords were selected and based in what specific information, given by who.
+
+    For example:
+    If the feedback suggests issues around time management, communication challenges, or team collaboration, appropriate keywords could include:
+
+    - Effective Communication
+    - Emotional Intelligence
+    - Time Management
+    - Build Trust
+    - Improve Focus
+    - Increase Productivity
+
+    These keywords should map to training programs or workshops such as:
+
+    - "Developing Emotional Intelligence for Better Leadership"
+    - "Mastering Deadlines and Time Management"
+    - "Leading Teams with Confidence"
+
+    User input format:
+
+    - Team whose this person belongs
+    - Name of the person
+    - Kind of feedback received
+    - Content of the feedback:
+        - Where you will get keywords from
+        - Where you will get insights about the specific role of this person and who's giving him feedback
+
+    Important considerations:
+
+    Use your psychological expertise to analyze the nuances in the feedback, identifying both overt and subtle areas of personal or professional development.
+    Ensure that the keywords reflect competencies that can be developed through training programs, workshops, or coaching.
+    The keywords should be actionable, broad enough to encompass key professional skills, yet specific enough for targeted learning.
+
+    **Format Requirement**:
+    The way you will provide this response is packed in a JSON with the following structure:
+    - "feedback_keywords": 
+        "keyword_1": "str",
+        "keyword_2": "str",
+        "keyword_3": "str",
+        "keyword_4": "str",
+        "keyword_5": "str",
+    - "analysis_explaining_keywords": "str"
+
+    The JSON must:
+    - Contain no extra formatting such as newlines, code blocks, or additional characters.
+    - Be directly loadable via `json.loads()`.
+    - Use the exact structure described, without deviations.
+
+    Lists with information of two docs:
+
+    - Team: {team}
+    - Name: {name}
+    - Kind of feedback: {kind_of}
+    - Content:
+
+    {content}
+
+    Review carefully each one of the guidelines at the start of this message, and make sure you're respecting each one of them. If you need to change something you've thought in order to fit the guidelines, do it.
+
+    Your JSON response:
+    """
+
+
+    payload = {
+    "messages": [
+        {
+        "role": "system",
+        "content": [
+            {
+            "type": "text",
+            "text": system_prompt
+            }
+        ]
+        }
+    ],
+    "temperature": 0.7,
+    "top_p": 0.95,
+    }
+
+    return payload
+
+
+def training_recommender_payload(keywords_json, best_match_trainings):
+
+    system_prompt = f"""
+
+    You are an expert in professional development, specializing in analyzing feedback to recommend appropriate corporate training programs. Your focus is on identifying skill gaps related to communication, leadership, collaboration, empathy, and decision-making, and aligning these gaps with specific trainings that address these areas.
+
+    Your task is to evaluate a given set of feedback and an analysis, both of which highlight key areas for improvement in an individual’s soft skills. You will then recommend three suitable training programs from a provided list, ensuring that these align with the individual’s development needs.
+
+    Your goal:
+    - Analyze the feedback keywords and the detailed analysis provided.
+    - Identify which skills the individual needs to improve based on this feedback and analysis.
+    - Recommend three training programs from the provided list that best address the identified areas for improvement.
+    - Provide a short explanation (100-200 words) of why these training programs were selected, directly linking the feedback to the training content.
+
+    The output should be in JSON format as follows:
+    
+        "analysis": "Detailed explanation of why the recommended trainings are suitable based on the feedback and keywords. And what to expect in the provided links.",
+        "link_n": "URL of the first recommended.", As much links (with a maximum of 3 links) as you consider relevant for this person. Where n is a digit corresponding the number of the feedback out of every feedback given.
+        
+    The JSON must:
+    - Contain no extra formatting such as newlines, code blocks, or additional characters.
+    - Be directly loadable via `json.loads()`.
+    - Use the exact structure described, without deviations.
+    
+    Keywords JSON:
+    {keywords_json}
+
+    Best Match Trainings:
+    {best_match_trainings}
+
+    Review carefully each one of the guidelines at the start of this message, and make sure you're respecting each one of them. If you need to change something you've thought in order to fit the guidelines, do it.
+    Your JSON response:
+    """
+
+    payload = {
+    "messages": [
+        {
+        "role": "system",
+        "content": [
+            {
+            "type": "text",
+            "text": system_prompt
+            }
+        ]
+        }
+    ],
+    "temperature": 0.7,
+    "top_p": 0.95,
+    }
+
+    return payload
