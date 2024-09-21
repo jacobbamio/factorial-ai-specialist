@@ -18,6 +18,9 @@ import fitz  # PyMuPDF
 from paddleocr import PaddleOCR
 import re
 from io import BytesIO
+import os
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents import SearchClient
 
 # PaddleOCR configuration
 ocr = PaddleOCR(
@@ -208,8 +211,8 @@ elif page == "Feedback Formatter":
                                                           language=detect(st.session_state.feedback_written),
                                                           initial_feedback=st.session_state.feedback_written)
 
-            st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_formatter_endpoint"],
-                                                                                  api_key=oai_services_credentials["api_key"],
+            st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["FEEDBACK_FORMATTER_ENDPOINT"],
+                                                                                  api_key=oai_services_credentials["API_KEY"],
                                                                                   payload=payload)["choices"][0]["message"]["content"])
 
     st.subheader("Feedback Formatted")
@@ -408,8 +411,8 @@ elif page == "GenAI - Feedbacks":
                                                    roles           = roles,
                                                    custom_prompt   = custom_prompt)
             
-            st.session_state.feedback_generated_response = json.loads(oai_request(endpoint=oai_services_credentials["feedback_generator_endpoint"],
-                                                                                  api_key=oai_services_credentials["api_key"],
+            st.session_state.feedback_generated_response = json.loads(oai_request(endpoint=oai_services_credentials["FEEDBACK_GENERATOR_ENDPOINT"],
+                                                                                  api_key=oai_services_credentials["API_KEY"],
                                                                                   payload=payload)["choices"][0]["message"]["content"])
 
     st.subheader("Feedback created")
