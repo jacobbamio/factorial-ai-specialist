@@ -407,11 +407,14 @@ elif page == "Training Recommendation":
                 training_recommendations = get_trainings_recommendation(selected_name)
 
     if selected_name:
-        st.subheader(f"Training recommendations for {selected_name}")
-        st.info(training_recommendations["analysis"])
-        st.info(training_recommendations["link_1"])
-        st.info(training_recommendations["link_2"])
-        st.info(training_recommendations["link_3"])
+        try:
+            st.subheader(f"Training recommendations for {selected_name}")
+            st.info(training_recommendations["analysis"])
+            st.info(training_recommendations["link_1"])
+            st.info(training_recommendations["link_2"])
+            st.info(training_recommendations["link_3"])
+        except:
+            st.warning("Something went wrong. Please try again in a few seconds.")
     else:
         st.subheader("Select a team member to see their training recommendation.")
 
