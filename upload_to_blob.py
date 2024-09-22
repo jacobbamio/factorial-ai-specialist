@@ -54,13 +54,12 @@ for blob in blobs:
         member_name = blob_path_parts[1]
         pdf_name = blob_path_parts[2]
 
-        if '_with' in pdf_name:
-            kind_of = pdf_name.split('_with')[0]  
-            kind_of = kind_of.replace('_', ' ')  
-        elif '_' in pdf_name:
-            kind_of = pdf_name.replace('_', ' ')  
+        if '_feedback_with' in pdf_name:
+            kind_of = 'horizontal'
+        elif '_with' in pdf_name:
+            kind_of = pdf_name.split('_with')[0].replace('_', ' ')
         else:
-            kind_of = 'horizontal'  
+            kind_of = pdf_name.replace('_', ' ')[:-4]
 
         print(f"Processing: {blob.name}")
         print(f"  Team: {team}")
