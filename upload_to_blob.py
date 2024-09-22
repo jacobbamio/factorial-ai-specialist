@@ -56,7 +56,7 @@ for blob in blobs:
 
         if '_with' in pdf_name:
             kind_of = pdf_name.split('_with')[0]  
-            kind_of = pdf_name.replace('_', ' ')  
+            kind_of = kind_of.replace('_', ' ')  
         elif '_' in pdf_name:
             kind_of = pdf_name.replace('_', ' ')  
         else:
