@@ -174,6 +174,32 @@ def get_trainings_recommendation(selected_name):
     # Step 5. Return the results
     return keywords_json
 
+def write_job_offer(user_prompt, job_role, include_salary, min_salary, max_salary, currency):
+    aaisearch_services_credentials = st.secrets["azure-ai-search-services"]
+    oai_services_credentials = st.secrets["azure-oai-services"]
+    tr_endpoint = oai_services_credentials["JOB_OFFERS_WRITING_ENDPOINT"]
+    tr_api_key = oai_services_credentials["API_KEY"]
+
+    # Step 1. Request the RAG Azure Index the top 2 most similar offers
+    results = aai_request(endpoint = aaisearch_services_credentials["AZURE_SEARCH_SERVICE_ENDPOINT"], 
+                          api_key = aaisearch_services_credentials["AZURE_SEARCH_API_KEY"], 
+                          index_name = aaisearch_services_credentials["AZURE_SEARCH_CAREERS_INDEX"],
+                          search_text = f"{job_role}",
+                          top = 2)
+    
+    offer_l, conditions_l = [], []
+    for offer in results:
+        offer_l.append(offer['offer'])
+        conditions_l.append(offer['conditions'])
+
+    # Step 2. Call the LLM to craft a new offer based on the information given
+    payload = payloads.job_offer_writing_payload(offer_l, conditions_l, job_role, user_prompt, include_salary, min_salary, max_salary, currency)
+    crafted_offer = json.loads(oai_request(endpoint=tr_endpoint,
+                                           api_key=tr_api_key,
+                                           payload=payload)["choices"][0]["message"]["content"])
+
+    # Step 3. Show the results
+    return crafted_offer
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks", "Notion documentation"]
@@ -459,18 +485,38 @@ else:
         st.write("In this tab, our AI will craft a job offer, based on previous offers from Factorial. The recruiters, will just have to include the role, and, if they want to, set some constraints.")
         import streamlit as st
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         include_salary = col1.checkbox("Include Salary?")
+        job_role = col2.text_input("Job role")
+        min_salary = col3.number_input("Minimum Salary", min_value=0, step=1000, disabled = not include_salary, value = 15000)
+        max_salary = col4.number_input("Maximum Salary", min_value=0, step=1000, disabled = not include_salary, value = 30000)
+        currency = col5.selectbox("Currency", ["EUR", "USD", "GBP", "CAD", "AUD"], disabled = not include_salary)
 
-        min_salary = col2.number_input("Minimum Salary", min_value=0, step=1000, disabled = not include_salary, value = 15000)
-        max_salary = col3.number_input("Maximum Salary", min_value=0, step=1000, disabled = not include_salary, value = 30000)
-        currency = col4.selectbox("Currency", ["EUR", "USD", "GBP", "CAD", "AUD"], disabled = not include_salary)
+        user_prompt = st.text_area(label = "Introduce some extra guidance for the AI!", height = 250,
+                                   placeholder = "This offer shouldn't have any emoji (even being a little dull if you ask me), and include the following links:")
+        
+        crafted_offer = None
 
-        st.text_area(label = "Introduce your prompt to craft a job offer!", height = 250,
-                    placeholder = "This offer aims to engage a Senior Backend Engineer")
-        st.button("Write the offer!", use_container_width=True)
+        if st.button("Write the offer!", use_container_width=True):
+            with st.spinner("Crafting a brand new offer with AI..."):
+                crafted_offer = write_job_offer(user_prompt, job_role, include_salary, min_salary, max_salary, currency)
 
         st.subheader("Job Offer")
+        if crafted_offer != None:
+            try:
+                filtered_conditions = {key: value for key, value in crafted_offer["conditions"].items() if value}
+                infos = list(filtered_conditions.values())
+                for i in range(0, len(infos), 3):
+                    cols = st.columns(3)
+                    for idx, value in enumerate(infos[i:i+3]):
+                        cols[idx].info(f"{value}")
+                
+                st.write(crafted_offer["offer"])
+
+            except Exception as e:
+                st.warning("Something went wrong. Please, wait a few seconds and try again.")
+                st.write(e)
+
         
     elif page == "GenAI - Feedbacks":
 
@@ -483,10 +529,10 @@ else:
         col_left, col_mid, col_right = st.columns(3)
 
         feedback_choice = col_left.radio("Feedback choices", ["360 feedback",
-                                                            "1 : 1",
-                                                            "Performance Review",
-                                                            "Self Evaluation",
-                                                            "Horizontal Feedback"])
+                                                              "1 : 1",
+                                                              "Performance Review",
+                                                              "Self Evaluation",
+                                                              "Horizontal Feedback"])
         
         if feedback_choice != "360 feedback":
 
