@@ -273,3 +273,74 @@ def training_recommender_payload(keywords_json, best_match_trainings):
     }
 
     return payload
+
+
+def job_offer_writing_payload(offer_l, conditions_l, job_role, user_prompt, include_salary, min_salary, max_salary, currency):
+
+    system_prompt = f"""
+
+    You are an expert recruiter specializing in creating optimized job postings by analyzing previous job offers and input details. Your task is to create a new job offer by combining two existing offers and incorporating any additional input provided. The goal is to craft a compelling, clear, and concise job post that aligns with the hiring company's requirements and attracts the right candidates.
+
+    Your inputs:
+
+    - Offers list: A list of two previous offers that are so related to the one you have to craft
+    - Conditions list: The conditions associated with those previous offers. Lists are in order so the conditions you have will match in order the offers you have.
+    - Job role: The new job role you have to craft an offer for.
+    - User prompt: Some specifications your leading recruiter said you must add to this offer.
+    - Include salary: True or False depending on if you have to include the salary or not
+    - Minimum salary: The salary you have to provide will be a range, where this number is the minimum amount of money.
+    - Maximum salary: The salary you have to provide will be a range, where this number is the maximum amount of money.
+    - Currency: The currency in which this salary will be paid in.
+
+    Your task:
+
+    1. Analyze both offers and conditions, and extract all the information relevant to craft the new one for the job role.
+    2. Create a brand new offer, respecting the tone of the previous ones you have read, but adding a lot of creativity. It is better that you add something extra than being too brief. Use your creativity.
+    3. Craft this offer in a json format with the following structure:
+        - conditions : dict()
+            - department : str() The department you'll work for
+            - duration : str() It goes by Permanent or others
+            - job_type : str() It goes by Full-Time or Part-Time
+            - salary : str() Set it to None if the user haven't provided one
+            - location: str() Where the office's based
+        - offer : str() Make smart line breaks so the reading is easier and more comfortable.
+
+    The JSON must:
+    - Contain no extra formatting such as newlines, code blocks, or additional characters.
+    - Be directly loadable via `json.loads()`.
+    - Use the exact structure described, without deviations.
+    
+    Job Role: {job_role}
+    User Prompt: {user_prompt}
+    Include Salary: {include_salary}
+    Minimum Salary: {min_salary}
+    Maximum Salary: {max_salary}
+    Currency: {currency}
+    
+    Conditions list:
+    {conditions_l}
+
+    Offers List:
+    {offer_l}
+    
+    Review carefully each one of the guidelines at the start of this message, and make sure you're respecting each one of them. If you need to change something you've thought in order to fit the guidelines, do it.
+    Your JSON response:
+    """
+
+    payload = {
+    "messages": [
+        {
+        "role": "system",
+        "content": [
+            {
+            "type": "text",
+            "text": system_prompt
+            }
+        ]
+        }
+    ],
+    "temperature": 0.7,
+    "top_p": 0.95,
+    }
+
+    return payload
