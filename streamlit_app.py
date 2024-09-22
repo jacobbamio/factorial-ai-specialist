@@ -182,6 +182,21 @@ page = st_navbar(pages,
                  styles    = styles, 
                  options   = True)
 
+st.markdown(
+    """
+    <style>
+    .streamlit-expanderHeader {
+        color: #e51a43;
+    }
+    .stAlert {
+        background-color: #f0f0f0; /* Background color for info */
+        border-left: 4px solid #e51a43; /* Custom color for the left border */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+    )
+
 if page == "Home":
 
     st.header("Welcome to the POC Streamlit interface of Factorial AI")
@@ -393,10 +408,10 @@ elif page == "Training Recommendation":
 
     if selected_name:
         st.subheader(f"Training recommendations for {selected_name}")
-        st.write(training_recommendations["analysis"])
-        st.write(training_recommendations["link_1"])
-        st.write(training_recommendations["link_2"])
-        st.write(training_recommendations["link_3"])
+        st.info(training_recommendations["analysis"])
+        st.info(training_recommendations["link_1"])
+        st.info(training_recommendations["link_2"])
+        st.info(training_recommendations["link_3"])
     else:
         st.subheader("Select a team member to see their training recommendation.")
 
