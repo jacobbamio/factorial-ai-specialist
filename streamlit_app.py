@@ -83,6 +83,74 @@ def oai_request(endpoint, api_key, payload):
 
     return response.json()
 
+def aai_request(endpoint, api_key, index_name, search_text, top, member = None, team = None, kind_of = None):
+    search_client = SearchClient(endpoint, index_name, AzureKeyCredential(api_key))
+
+    filter_conditions = []
+
+    if member:
+        filter_conditions.append(f"member eq '{member}'")
+    if team:
+        filter_conditions.append(f"team eq '{team}'")
+    if kind_of:
+        filter_conditions.append(f"kind_of eq '{kind_of}'")
+
+    filter_expression = " and ".join(filter_conditions) if filter_conditions else None
+
+    results = search_client.search(search_text=search_text, top=top, filter = filter_expression)
+    return results
+
+def get_trainings_recommendation(selected_name):
+    aaisearch_services_credentials = st.secrets["azure-ai-search-services"]
+    oai_services_credentials = st.secrets["azure-oai-services"]
+    tr_endpoint = oai_services_credentials["TRAININGS_RECOMMENDER_ENDPOINT"]
+    tr_api_key = oai_services_credentials["API_KEY"]
+
+
+    # Step 1. Request the RAG Azure Index the 
+    results = aai_request(endpoint = aaisearch_services_credentials["AZURE_SEARCH_SERVICE_ENDPOINT"], 
+                          api_key = aaisearch_services_credentials["AZURE_SEARCH_API_KEY"], 
+                          index_name = aaisearch_services_credentials["AZURE_SEARCH_FEEDBACKS_INDEX"],
+                          search_text = f"strengths and weaknesses",
+                          member = selected_name.lower(),
+                          top = 2)
+
+    # Step 1.1 Get the information ordered for the LLM request
+    team_l, name_l, kind_of_l, content_l = [], [], [], [],
+    for doc in results:
+        team_l.append(doc['team'])
+        name_l.append(doc['member'])
+        kind_of_l.append(doc['kind_of'])
+        content_l.append(doc['content'])
+
+    # Step 2. Send those documents to the LLM
+    payload = payloads.keyword_summarizer_payload(team_l, name_l, kind_of_l, content_l)
+    keywords_json = json.loads(oai_request(endpoint=tr_endpoint,
+                                           api_key=tr_api_key,
+                                           payload=payload)["choices"][0]["message"]["content"])
+    
+    # Step 3. Get the keywords from OpenAI response and search best course fit
+    search_keywords = ', '.join(keywords_json["feedback_keywords"].values())
+    results = aai_request(endpoint = aaisearch_services_credentials["AZURE_SEARCH_SERVICE_ENDPOINT"], 
+                          api_key = aaisearch_services_credentials["AZURE_SEARCH_API_KEY"], 
+                          index_name = aaisearch_services_credentials["AZURE_SEARCH_TRAININGS_INDEX"],
+                          search_text = search_keywords,
+                          top = 5)
+    
+    best_course_fit = []
+    for r in results:
+        filtered = {key: r[key] for key in ['title', 'subtitle', 'key_learnings', 'link']}
+        best_course_fit.append(filtered)
+
+    # Step 4. Get the response unified for the user
+    payload = payloads.training_recommender_payload(keywords_json, best_course_fit)
+    keywords_json = json.loads(oai_request(endpoint=tr_endpoint,
+                                           api_key=tr_api_key,
+                                           payload=payload)["choices"][0]["message"]["content"])
+
+    # Step 5. Return the results
+    return keywords_json
+
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks", "Notion documentation"]
 logo_path = "resources/images/factorial_logo.svg"
@@ -320,9 +388,15 @@ elif page == "Training Recommendation":
     for i, member in enumerate(team_members):
         if cols[i].button(f"## **{member['title']}**\n\n{member['name']}"):
             selected_name = member["name"]
+            with st.spinner(f"Analyzing {selected_name}'s received feedback..."):
+                training_recommendations = get_trainings_recommendation(selected_name)
 
     if selected_name:
         st.subheader(f"Training recommendations for {selected_name}")
+        st.write(training_recommendations["analysis"])
+        st.write(training_recommendations["link_1"])
+        st.write(training_recommendations["link_2"])
+        st.write(training_recommendations["link_3"])
     else:
         st.subheader("Select a team member to see their training recommendation.")
 
