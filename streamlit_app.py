@@ -115,20 +115,8 @@ def oai_request(endpoint, api_key, payload):
 
     return response.json()
 
-def aai_request(endpoint, api_key, index_name, search_text, top, member = None, team = None, kind_of = None):
+def aai_request(endpoint, api_key, index_name, search_text, top, filter_expression = None):
     search_client = SearchClient(endpoint, index_name, AzureKeyCredential(api_key))
-
-    filter_conditions = []
-
-    if member:
-        filter_conditions.append(f"member eq '{member}'")
-    if team:
-        filter_conditions.append(f"team eq '{team}'")
-    if kind_of:
-        filter_conditions.append(f"kind_of eq '{kind_of}'")
-
-    filter_expression = " and ".join(filter_conditions) if filter_conditions else None
-
     results = search_client.search(search_text=search_text, top=top, filter = filter_expression)
     return results
 
@@ -139,12 +127,15 @@ def get_trainings_recommendation(selected_name):
     tr_api_key = oai_services_credentials["API_KEY"]
 
 
-    # Step 1. Request the RAG Azure Index the 
+    # Step 1. Request the RAG Azure Index the top 2 most similar documents with strengths and weaknesses for the member filter
+
+    filter_expression = f"member eq '{selected_name.lower()}'"
+
     results = aai_request(endpoint = aaisearch_services_credentials["AZURE_SEARCH_SERVICE_ENDPOINT"], 
                           api_key = aaisearch_services_credentials["AZURE_SEARCH_API_KEY"], 
                           index_name = aaisearch_services_credentials["AZURE_SEARCH_FEEDBACKS_INDEX"],
                           search_text = f"strengths and weaknesses",
-                          member = selected_name.lower(),
+                          filter_expression = filter_expression,
                           top = 2)
 
     # Step 1.1 Get the information ordered for the LLM request
@@ -182,6 +173,7 @@ def get_trainings_recommendation(selected_name):
 
     # Step 5. Return the results
     return keywords_json
+
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks", "Notion documentation"]
@@ -465,6 +457,15 @@ else:
 
         st.header("Job Offers Writing")
         st.write("In this tab, our AI will craft a job offer, based on previous offers from Factorial. The recruiters, will just have to include the role, and, if they want to, set some constraints.")
+        import streamlit as st
+
+        col1, col2, col3, col4 = st.columns(4)
+        include_salary = col1.checkbox("Include Salary?")
+
+        min_salary = col2.number_input("Minimum Salary", min_value=0, step=1000, disabled = not include_salary, value = 15000)
+        max_salary = col3.number_input("Maximum Salary", min_value=0, step=1000, disabled = not include_salary, value = 30000)
+        currency = col4.selectbox("Currency", ["EUR", "USD", "GBP", "CAD", "AUD"], disabled = not include_salary)
+
         st.text_area(label = "Introduce your prompt to craft a job offer!", height = 250,
                     placeholder = "This offer aims to engage a Senior Backend Engineer")
         st.button("Write the offer!", use_container_width=True)
