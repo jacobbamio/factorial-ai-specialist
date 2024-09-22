@@ -21,7 +21,11 @@ def feedback_formatter_payload(culture, language, initial_feedback):
     - "top_well_done" : A list of three keywords that reflect the best he's done in his approach. Do not invent qualities about the original feedback to format. If you evaluate the feedback as clearly disrespectful or toxic, leave this field blank.
     - "top_improvers" : A list of three keywords that reflect the worst he's done, so he can improve it. Do not invent negative keywords if you think the feedback fits perfectly the {culture} culture.
 
-    No additional characters or comments are allowed before or after the JSON. Ensure the response is immediately loadable via `json.loads()`. 
+    The JSON must:
+    - Contain no extra formatting such as newlines, code blocks, or additional characters.
+    - Be directly loadable via `json.loads()`.
+    - Use the exact structure described, without deviations.
+
     The response must be written in the following language: {language}
 
     Culture of the person receiving the feedback: 
@@ -85,7 +89,11 @@ def feedback_generation(kind_of, giver_number, receiver_number, giver_name, rece
         - to: who receives
         - feedback: their feedback
 
-    No additional characters or comments are allowed before or after the JSON. Ensure the response is immediately loadable via `json.loads()`. 
+    The JSON must:
+    - Contain no extra formatting such as newlines, code blocks, or additional characters.
+    - Be directly loadable via `json.loads()`.
+    - Use the exact structure described, without deviations.
+        
     That been said, let's create the best and most creative examples for your novel and classes! Here's your context!
 
     Kind of: {kind_of}
