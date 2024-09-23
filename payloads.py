@@ -18,8 +18,16 @@ def feedback_formatter_payload(culture, language, initial_feedback):
     - "feedback_formatted" : The feedback you have written, respecting the constraints. Must be just the feedback, do not do a bulleted list with the 4A format.
     - "feedback_analysis" : Why have you made the changes you've made, in a way that the manager can learn about the changes you've made.
     - "short_tip" : Based on the initial feedback and your analysis, give a very short tip that could be used even as a motto for the manager in the future, when he builds his own feedbacks.
-    - "top_well_done" : A list of three keywords that reflect the best he's done in his approach. Do not invent qualities about the original feedback to format. If you evaluate the feedback as clearly disrespectful or toxic, leave this field blank.
+    - "top_well_done" : A list of three keywords that reflect the best he's done in his approach. If you evaluate the feedback as clearly disrespectful or toxic, leave this field blank.
     - "top_improvers" : A list of three keywords that reflect the worst he's done, so he can improve it. Do not invent negative keywords if you think the feedback fits perfectly the {culture} culture.
+
+    Considering that cultures have a crucial impact in what we do understand as 'clearly disrespectful or toxic', let's define it regardless of the culture:
+    - It includes insults
+    - It includes threats to life, firing anyone, or any other threat to harm you or your reputation
+    - It includes disdain
+
+    In scenarios with none of these three topics are found in the feedback, but you consider it doesn't align with the culture, still look for some things that were good.
+    In scenarios with any of these three topics are found, leave the "top_well_done" field blank.
 
     The JSON must:
     - Contain no extra formatting such as newlines, code blocks, or additional characters.
