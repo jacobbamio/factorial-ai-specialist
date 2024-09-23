@@ -202,7 +202,7 @@ def write_job_offer(user_prompt, job_role, include_salary, min_salary, max_salar
     return crafted_offer
 
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
-pages = ["Feedback Formatter", "Training Recommendation", "Job Offers Writing", "GenAI - Feedbacks", "Notion documentation"]
+pages = ["Feedback Formatter", "Feedback Generator", "Training Recommendation", "Job Offers Writing", "Notion documentation"]
 logo_path = "resources/images/factorial_logo.svg"
 urls = {"Notion documentation" : "https://factorial-ai-specialist-jacob-bamio.notion.site/Factorial-AI-Specialist-7589768dc24848f38b8eb4728256fa10"}
 styles = {
@@ -305,7 +305,7 @@ else:
 
                     Writes job offers based on context of past offers, making it easier and faster to recruiters to be creative and find the best candidates.
 
-                    ##### GenAI - Feedbacks \n
+                    ##### Feedback Generator \n
 
                     Crafts different kind of feedbacks with AI. 360, 1:1, performance review. An all in one tool for testing.
 
@@ -518,7 +518,7 @@ else:
                 st.write(e)
 
         
-    elif page == "GenAI - Feedbacks":
+    elif page == "Feedback Generator":
 
         if "feedback_generated_response" not in st.session_state:
             st.session_state.feedback_generated_response = None
