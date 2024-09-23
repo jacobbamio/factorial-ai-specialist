@@ -354,10 +354,10 @@ else:
                 payload = payloads.feedback_formatter_payload(culture=selected_country,
                                                             language=detect(st.session_state.feedback_written),
                                                             initial_feedback=st.session_state.feedback_written)
-
-                st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["FEEDBACK_FORMATTER_ENDPOINT"],
-                                                                                    api_key=oai_services_credentials["API_KEY"],
-                                                                                    payload=payload)["choices"][0]["message"]["content"])
+                with st.spinner("Formatting feedback..."):
+                    st.session_state.feedback_formatted_response = json.loads(oai_request(endpoint=oai_services_credentials["FEEDBACK_FORMATTER_ENDPOINT"],
+                                                                                          api_key=oai_services_credentials["API_KEY"],
+                                                                                          payload=payload)["choices"][0]["message"]["content"])
 
         st.subheader("Feedback Formatted")
 
@@ -593,9 +593,10 @@ else:
                                                     roles           = roles,
                                                     custom_prompt   = custom_prompt)
                 
-                st.session_state.feedback_generated_response = json.loads(oai_request(endpoint=oai_services_credentials["FEEDBACK_GENERATOR_ENDPOINT"],
-                                                                                    api_key=oai_services_credentials["API_KEY"],
-                                                                                    payload=payload)["choices"][0]["message"]["content"])
+                with st.spinner("Crafting custom feedback..."):
+                    st.session_state.feedback_generated_response = json.loads(oai_request(endpoint=oai_services_credentials["FEEDBACK_GENERATOR_ENDPOINT"],
+                                                                                        api_key=oai_services_credentials["API_KEY"],
+                                                                                        payload=payload)["choices"][0]["message"]["content"])
 
         st.subheader("Feedback created")
 
