@@ -14,8 +14,7 @@ Welcome to the repository for the Factorial AI Specialist challenge! This app ai
 
 ## 🚀 Application
 
-The app is currently running locally and can be accessed at localhost:8501.
-(Note: The link will be updated once the live deployment is available.)
+The app is running in [here](https://factorial-ai-specialist-jacob-bamio.streamlit.app), so feel free to explore yourself the different features!
 
 ## 📚 All relevant information
 
