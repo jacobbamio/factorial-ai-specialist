@@ -3,9 +3,10 @@ azure-identity               == 1.18.0
 azure-search-documents       == 11.5.1
 azure-storage-blob           == 12.23.0
 beautifulsoup4               == 4.12.3
-fpdf                         == 1.7.2
 fpdf2                        == 2.7.9
 langdetect                   == 1.0.9
+openai                       == 1.45.0
+opencv-python                == 4.10.0.84
 paddleocr                    == 2.8.1
 paddlepaddle                 == 2.6.2
 pycountry                    == 24.6.1
