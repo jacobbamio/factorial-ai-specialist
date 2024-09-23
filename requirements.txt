@@ -7,7 +7,6 @@ fpdf                         == 1.7.2
 fpdf2                        == 2.7.9
 langdetect                   == 1.0.9
 paddleocr                    == 2.8.1
-paddleocr.egg                == info
 pycountry                    == 24.6.1
 python-dotenv                == 1.0.1
 PyMuPDF                      == 1.24.10
